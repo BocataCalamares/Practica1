@@ -3,6 +3,7 @@ import java.io.File
 import java.nio.file.Files
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
+import java.util.Scanner
 
 
 data class Habitat(
@@ -50,7 +51,10 @@ fun menuCSV() {
         when (eleccion) {
             0 -> mostrarMenuCSV = false
             1 -> println(leerDatosCSV(entradaCSV))
-            2 -> println() //(escribirCSV())
+            2 -> escribirCSV(
+                entradaCSV,
+                habitats = TODO()
+            )
             3 -> println("TO DO")
             4 -> println("TO DO")
             else -> println("Opción inválida. Intenta con un número del menú.")
@@ -114,7 +118,10 @@ fun menuCSV() {
 
     fun escribirCSV(ruta: Path, habitats: List<Habitat>) {
         try {
+            val scanner = Scanner(System.`in`)
             val fichero: File = ruta.toFile()
+            //Comparar id existentes para evitar duplicados
+            val idDuplicado = obtenerIdsExistentes(fichero)
             csvWriter {
                 delimiter = ';'
             }.writeAll(
@@ -133,6 +140,27 @@ fun menuCSV() {
         } catch (e: Exception) {
             println("Error al escribir el fichero CSV: ${e.message}")
         }
+
     }
+private fun obtenerIdsExistentes(fichero: File): Set<Int> {
+    val ids = mutableSetOf<Int>()
+    if (!fichero.exists()) return ids
+
+    try {
+        csvReader {
+            delimiter = ';'
+        }.open(fichero) {
+            readAllAsSequence().forEachIndexed { index, fila ->
+                // Omitir cabecera si existe
+                if (index > 0 || fila[0].toIntOrNull() != null) {
+                    fila[0].toIntOrNull()?.let { ids.add(it) }
+                }
+            }
+        }
+    } catch (e: Exception) {
+        println("Aviso al leer IDs existentes: ${e.message}")
+    }
+    return ids
+}
 
 
