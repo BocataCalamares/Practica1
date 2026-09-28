@@ -33,7 +33,6 @@ fun main() {
 }
 fun menuCSV() {
     val entradaCSV = Path.of("datos", "habitat.csv")
-    val salidaCSV = Path.of("datos", "habitat2.csv")
     var mostrarMenuCSV = true
     while (mostrarMenuCSV) {
         println(
@@ -51,10 +50,7 @@ fun menuCSV() {
         when (eleccion) {
             0 -> mostrarMenuCSV = false
             1 -> println(leerDatosCSV(entradaCSV))
-            2 -> escribirCSV(
-                entradaCSV,
-                habitats = TODO()
-            )
+            2 -> escribirCSV(entradaCSV)
             3 -> println("TO DO")
             4 -> println("TO DO")
             else -> println("Opción inválida. Intenta con un número del menú.")
@@ -65,17 +61,17 @@ fun menuCSV() {
         val entradaCSV = Path.of("datos", "habitat.csv")
         val salidaCSV = Path.of("datos", "habitat2.csv")
 
-        // Leer los datos estructurados del CSV y guardarlos en una lista de objetos Planta
+        // Leer los datos estructurados del CSV y guardarlos en una lista de objetos Habitat
         val datos: List<Habitat> = leerDatosCSV(entradaCSV)
 
         // Mostrar por consola la información deserializada
-        println("--- Información de la lista de objetos Planta")
+        println("--- Información de la lista de Habitats")
         for (dato in datos) {
             println("  - ID: ${dato.id_habitat}, Nombre común: ${dato.nombre}, Clima: ${dato.clima}, Altitud: ${dato.altitud_media}, Temperatura: ${dato.temperatura_media}º")
         }
 
         // Guardar una copia procesada en un nuevo fichero CSV
-        escribirCSV(salidaCSV, datos)
+        escribirCSV(salidaCSV)
 
     }
 
@@ -116,51 +112,94 @@ fun menuCSV() {
         return habitats
     }
 
-    fun escribirCSV(ruta: Path, habitats: List<Habitat>) {
-        try {
-            val scanner = Scanner(System.`in`)
+    fun escribirCSV(ruta: Path) {
+
+            val habitats = leerDatosCSV(ruta).toMutableList()
             val fichero: File = ruta.toFile()
             //Comparar id existentes para evitar duplicados
-            val idDuplicado = obtenerIdsExistentes(fichero)
-            csvWriter {
-                delimiter = ';'
-            }.writeAll(
-                habitats.map { habitat ->
-                    listOf(
-                        habitat.id_habitat.toString(),
-                        habitat.nombre,
-                        habitat.clima,
-                        habitat.altitud_media.toString(),
-                        habitat.temperatura_media.toString()
-                    )
-                },
-                fichero
-            )
-            println("--- Información guardada con éxito en: $fichero")
-        } catch (e: Exception) {
-            println("Error al escribir el fichero CSV: ${e.message}")
-        }
 
+            var  bandera: Boolean = true
+
+            while (bandera) {
+
+                try {
+                    println("Asigna un id valido")
+                        val id: Int = readln().toInt()
+
+                    if (habitats.any{it.id_habitat == id}){
+                        println("Error id duplicado")
+                    } else {
+                        println("Asigna un nombre valido")
+                        val nombre: String = readln()
+
+                        println("Asigna un clima")
+                        val clima: String = readln()
+
+                        println("Asigna un altitud")
+                        val altitud: Int = readln().toInt()
+
+                        println("Asigna un temperatura")
+                        val temperatura: Double = readln().toDouble()
+
+                        val nuevoHabitat = Habitat(id, nombre, clima, altitud, temperatura)
+                        habitats.add(nuevoHabitat)
+
+
+                        csvWriter {
+                            delimiter = ';'
+                        }.writeAll(
+                            habitats.map { habitat ->
+                                listOf(
+                                    habitat.id_habitat.toString(),
+                                    habitat.nombre,
+                                    habitat.clima,
+                                    habitat.altitud_media.toString(),
+                                    habitat.temperatura_media.toString()
+                                )
+                            },
+                            fichero
+                        )
+                        println("--- Información guardada con éxito en: $fichero")
+                        bandera = false
+                    }
+                }catch (e: Exception) {
+                    println("Error al escribir el fichero CSV: ${e.message}")
+
+            }
     }
-private fun obtenerIdsExistentes(fichero: File): Set<Int> {
-    val ids = mutableSetOf<Int>()
-    if (!fichero.exists()) return ids
+        }
+    fun modificarCSV(ruta: Path) {
+        val habitats = leerDatosCSV(ruta).toMutableList()
 
-    try {
-        csvReader {
-            delimiter = ';'
-        }.open(fichero) {
-            readAllAsSequence().forEachIndexed { index, fila ->
-                // Omitir cabecera si existe
-                if (index > 0 || fila[0].toIntOrNull() != null) {
-                    fila[0].toIntOrNull()?.let { ids.add(it) }
+
+        if(habitats.isEmpty()) {
+            println("No hay datos en el fichero para modificar")
+            return
+
+        }else{
+        println("\n--- MODIFICAR HABITAT EXISTENTE ---")
+        //Pedir id
+        var habitatSelecionado: Habitat? = null
+        while (habitatSelecionado == null) {
+            println("Introduce el ID del hábitat a modificar (0 para cancelar):")
+            val idAModificar = readln().trim().toIntOrNull()
+
+            if (idAModificar == 0) {return
+            }else if (idAModificar == null) {
+                println("Error: Debes introducir un número entero válido")
+            }else{
+                habitatSelecionado = habitats.find{it.id_habitat == idAModificar}
+                if(habitatSelecionado == null){
+                    println("Error: No se encontró el ID")
                 }
             }
+
         }
-    } catch (e: Exception) {
-        println("Aviso al leer IDs existentes: ${e.message}")
+        }
+
+
     }
-    return ids
-}
+
+
 
 
