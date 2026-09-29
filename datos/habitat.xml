@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<habitats>
+    <habitat>
+        <id_habitat>1</id_habitat>
+        <nombre>Sabana</nombre>
+        <clima>calido</clima>
+        <altitud_media>1</altitud_media>
+        <temperatura_media>30.0</temperatura_media>
+    </habitat>
+    <habitat>
+        <id_habitat>2</id_habitat>
+        <nombre>Selva Amazonas</nombre>
+        <clima>humedo</clima>
+        <altitud_media>1</altitud_media>
+        <temperatura_media>20.0</temperatura_media>
+    </habitat>
+    <habitat>
+        <id_habitat>3</id_habitat>
+        <nombre>Montaña</nombre>
+        <clima>seco</clima>
+        <altitud_media>15</altitud_media>
+        <temperatura_media>10.0</temperatura_media>
+    </habitat>
+    <habitat>
+        <id_habitat>4</id_habitat>
+        <nombre>Casco Polar</nombre>
+        <clima>frio/seco</clima>
+        <altitud_media>1</altitud_media>
+        <temperatura_media>1.0</temperatura_media>
+    </habitat>
+    <habitat>
+        <id_habitat>5</id_habitat>
+        <nombre>Bosque</nombre>
+        <clima>humedo</clima>
+        <altitud_media>1</altitud_media>
+        <temperatura_media>20.0</temperatura_media>
+    </habitat>
+    <habitat>
+        <id_habitat>8</id_habitat>
+        <nombre>Oceano</nombre>
+        <clima>Humedo</clima>
+        <altitud_media>0</altitud_media>
+        <temperatura_media>10.0</temperatura_media>
+    </habitat>
+    <habitat>
+        <id_habitat>9</id_habitat>
+        <nombre>Planicie</nombre>
+        <clima>Calido</clima>
+        <altitud_media>20</altitud_media>
+        <temperatura_media>20.0</temperatura_media>
+    </habitat>
+</habitats>

@@ -1,0 +1,51 @@
+[
+  {
+    "id_habitat": 1,
+    "nombre": "Sabana",
+    "clima": "calido",
+    "altitud_media": 1,
+    "temperatura_media": 30.0
+  },
+  {
+    "id_habitat": 2,
+    "nombre": "Selva Amazonas",
+    "clima": "humedo",
+    "altitud_media": 1,
+    "temperatura_media": 20.0
+  },
+  {
+    "id_habitat": 3,
+    "nombre": "Montaña",
+    "clima": "seco",
+    "altitud_media": 15,
+    "temperatura_media": 10.0
+  },
+  {
+    "id_habitat": 4,
+    "nombre": "Casco Polar",
+    "clima": "frio/seco",
+    "altitud_media": 1,
+    "temperatura_media": 1.0
+  },
+  {
+    "id_habitat": 5,
+    "nombre": "Bosque",
+    "clima": "humedo",
+    "altitud_media": 1,
+    "temperatura_media": 20.0
+  },
+  {
+    "id_habitat": 8,
+    "nombre": "Oceano",
+    "clima": "Humedo",
+    "altitud_media": 0,
+    "temperatura_media": 10.0
+  },
+  {
+    "id_habitat": 9,
+    "nombre": "Planicie",
+    "clima": "Calido",
+    "altitud_media": 20,
+    "temperatura_media": 20.0
+  }
+]
