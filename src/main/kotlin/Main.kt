@@ -126,7 +126,8 @@ fun menuJSON() {
             "--------------------------------------" +
                     "\n-------------- CRUD JSON --------------" +
                     "\n--------------------------------------" +
-                    "\n1. Leer datos desde XML" +
+                    "\n1. Leer datos desde JSON" +
+                    "\n2. Leer datos desde JSON" +
                     "\n0. Volver al menú principal"
         )
 

@@ -1,0 +1,468 @@
+<html>
+<head>
+<title>Main.kt</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #bcbec4;}
+.s1 { color: #bcbec4;}
+.s2 { color: #7a7e85;}
+.s3 { color: #cf8e6d;}
+.s4 { color: #6aab73;}
+.s5 { color: #2aacb8;}
+</style>
+</head>
+<body bgcolor="#191a1c">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+Main.kt</font>
+</center></td></tr></table>
+<pre><span class="s0">import com</span><span class="s1">.</span><span class="s0">fasterxml</span><span class="s1">.</span><span class="s0">jackson</span><span class="s1">.</span><span class="s0">dataformat</span><span class="s1">.</span><span class="s0">xml</span><span class="s1">.</span><span class="s0">XmlMapper</span>
+<span class="s0">import com</span><span class="s1">.</span><span class="s0">fasterxml</span><span class="s1">.</span><span class="s0">jackson</span><span class="s1">.</span><span class="s0">dataformat</span><span class="s1">.</span><span class="s0">xml</span><span class="s1">.</span><span class="s0">annotation</span><span class="s1">.</span><span class="s0">JacksonXmlElementWrapper</span>
+<span class="s0">import com</span><span class="s1">.</span><span class="s0">fasterxml</span><span class="s1">.</span><span class="s0">jackson</span><span class="s1">.</span><span class="s0">dataformat</span><span class="s1">.</span><span class="s0">xml</span><span class="s1">.</span><span class="s0">annotation</span><span class="s1">.</span><span class="s0">JacksonXmlProperty</span>
+<span class="s0">import com</span><span class="s1">.</span><span class="s0">fasterxml</span><span class="s1">.</span><span class="s0">jackson</span><span class="s1">.</span><span class="s0">dataformat</span><span class="s1">.</span><span class="s0">xml</span><span class="s1">.</span><span class="s0">annotation</span><span class="s1">.</span><span class="s0">JacksonXmlRootElement</span>
+<span class="s0">import com</span><span class="s1">.</span><span class="s0">fasterxml</span><span class="s1">.</span><span class="s0">jackson</span><span class="s1">.</span><span class="s0">module</span><span class="s1">.</span><span class="s0">kotlin</span><span class="s1">.</span><span class="s0">readValue</span>
+<span class="s0">import com</span><span class="s1">.</span><span class="s0">fasterxml</span><span class="s1">.</span><span class="s0">jackson</span><span class="s1">.</span><span class="s0">module</span><span class="s1">.</span><span class="s0">kotlin</span><span class="s1">.</span><span class="s0">registerKotlinModule</span>
+<span class="s0">import java</span><span class="s1">.</span><span class="s0">nio</span><span class="s1">.</span><span class="s0">file</span><span class="s1">.</span><span class="s0">Path</span>
+<span class="s0">import java</span><span class="s1">.</span><span class="s0">io</span><span class="s1">.</span><span class="s0">File</span>
+<span class="s0">import java</span><span class="s1">.</span><span class="s0">nio</span><span class="s1">.</span><span class="s0">file</span><span class="s1">.</span><span class="s0">Files</span>
+<span class="s0">import com</span><span class="s1">.</span><span class="s0">github</span><span class="s1">.</span><span class="s0">doyaaaaaken</span><span class="s1">.</span><span class="s0">kotlincsv</span><span class="s1">.</span><span class="s0">dsl</span><span class="s1">.</span><span class="s0">csvReader</span>
+<span class="s0">import com</span><span class="s1">.</span><span class="s0">github</span><span class="s1">.</span><span class="s0">doyaaaaaken</span><span class="s1">.</span><span class="s0">kotlincsv</span><span class="s1">.</span><span class="s0">dsl</span><span class="s1">.</span><span class="s0">csvWriter</span>
+<span class="s0">import kotlinx</span><span class="s1">.</span><span class="s0">serialization</span><span class="s1">.*</span>
+<span class="s0">import kotlinx</span><span class="s1">.</span><span class="s0">serialization</span><span class="s1">.</span><span class="s0">json</span><span class="s1">.*</span>
+
+<span class="s2">//Data class CSV</span>
+<span class="s0">data </span><span class="s3">class </span><span class="s0">Habitat</span><span class="s1">(</span>
+    <span class="s3">val </span><span class="s0">id_habitat: Int</span><span class="s1">,</span>
+    <span class="s3">val </span><span class="s0">nombre: String</span><span class="s1">,</span>
+    <span class="s3">val </span><span class="s0">clima: String</span><span class="s1">,</span>
+    <span class="s3">val </span><span class="s0">altitud_media: Int</span><span class="s1">,</span>
+    <span class="s3">val </span><span class="s0">temperatura_media: Double</span>
+<span class="s1">)</span>
+<span class="s0">data </span><span class="s3">class </span><span class="s0">habitatXML</span><span class="s1">(</span>
+    <span class="s0">@JacksonXmlProperty</span><span class="s1">(</span><span class="s0">localName </span><span class="s1">= </span><span class="s4">&quot;id_habitat&quot;</span><span class="s1">)</span>
+    <span class="s3">val </span><span class="s0">idHabitat: Int</span><span class="s1">,</span>
+    <span class="s0">@JacksonXmlProperty</span><span class="s1">(</span><span class="s0">localName </span><span class="s1">= </span><span class="s4">&quot;nombre&quot;</span><span class="s1">)</span>
+    <span class="s3">val </span><span class="s0">nombre: String</span><span class="s1">,</span>
+    <span class="s0">@JacksonXmlProperty</span><span class="s1">(</span><span class="s0">localName </span><span class="s1">= </span><span class="s4">&quot;clima&quot;</span><span class="s1">)</span>
+    <span class="s3">val </span><span class="s0">clima: String</span><span class="s1">,</span>
+    <span class="s0">@JacksonXmlProperty</span><span class="s1">(</span><span class="s0">localName </span><span class="s1">= </span><span class="s4">&quot;altitud_media&quot;</span><span class="s1">)</span>
+    <span class="s3">val </span><span class="s0">altitud_media: Int</span><span class="s1">,</span>
+    <span class="s0">@JacksonXmlProperty</span><span class="s1">(</span><span class="s0">localName </span><span class="s1">= </span><span class="s4">&quot;temperatura_media&quot;</span><span class="s1">)</span>
+    <span class="s3">val </span><span class="s0">temperatura_media: Double</span>
+<span class="s1">)</span>
+<span class="s0">@JacksonXmlRootElement</span><span class="s1">(</span><span class="s0">localName </span><span class="s1">= </span><span class="s4">&quot;habitats&quot;</span><span class="s1">)</span>
+<span class="s0">data </span><span class="s3">class </span><span class="s0">HabitatsWrapper</span><span class="s1">(</span>
+    <span class="s0">@JacksonXmlElementWrapper</span><span class="s1">(</span><span class="s0">useWrapping </span><span class="s1">= </span><span class="s3">false</span><span class="s1">)</span>
+    <span class="s0">@JacksonXmlProperty</span><span class="s1">(</span><span class="s0">localName </span><span class="s1">= </span><span class="s4">&quot;habitat&quot;</span><span class="s1">)</span>
+    <span class="s3">val </span><span class="s0">listaHabitats: List</span><span class="s1">&lt;</span><span class="s0">habitatXML</span><span class="s1">&gt; = </span><span class="s0">emptyList</span><span class="s1">()</span>
+<span class="s1">)</span>
+
+<span class="s0">@Serializable</span>
+<span class="s0">data </span><span class="s3">class </span><span class="s0">HabitatJSON</span><span class="s1">(</span>
+    <span class="s0">@SerialName</span><span class="s1">(</span><span class="s4">&quot;id_habitat&quot;</span><span class="s1">) </span><span class="s3">val </span><span class="s0">idHabitat: Int</span><span class="s1">,</span>
+    <span class="s0">@SerialName</span><span class="s1">(</span><span class="s4">&quot;nombre&quot;</span><span class="s1">) </span><span class="s3">val </span><span class="s0">nombre: String</span><span class="s1">,</span>
+    <span class="s0">@SerialName</span><span class="s1">(</span><span class="s4">&quot;clima&quot;</span><span class="s1">) </span><span class="s3">val </span><span class="s0">clima: String</span><span class="s1">,</span>
+    <span class="s0">@SerialName</span><span class="s1">(</span><span class="s4">&quot;altitud_media&quot;</span><span class="s1">) </span><span class="s3">val </span><span class="s0">altitud_media: Int</span><span class="s1">,</span>
+    <span class="s0">@SerialName</span><span class="s1">(</span><span class="s4">&quot;temperatura&quot;</span><span class="s1">) </span><span class="s3">val </span><span class="s0">temperatura: Double</span>
+<span class="s1">)</span>
+
+<span class="s3">fun </span><span class="s0">main</span><span class="s1">() {</span>
+    <span class="s3">var </span><span class="s0">mostrarMenu </span><span class="s1">= </span><span class="s3">true</span>
+   <span class="s3">while</span><span class="s1">(</span><span class="s0">mostrarMenu</span><span class="s1">) {</span>
+    <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;--------------------------------------&quot; </span><span class="s1">+</span>
+            <span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">----------- MENÚ PRINCIPAL -----------&quot; </span><span class="s1">+</span>
+            <span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">--------------------------------------&quot; </span><span class="s1">+</span>
+            <span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">1. Gestión CSV&quot; </span><span class="s1">+</span>
+            <span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">2. Gestión XML&quot; </span><span class="s1">+</span>
+            <span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">3. Gestión JSON&quot; </span><span class="s1">+</span>
+            <span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">0. Salir&quot;</span><span class="s1">)</span>
+
+       <span class="s3">val </span><span class="s0">eleccion: Int </span><span class="s1">= </span><span class="s0">readln</span><span class="s1">().</span><span class="s0">toInt</span><span class="s1">()</span>
+       <span class="s3">when </span><span class="s1">(</span><span class="s0">eleccion</span><span class="s1">) {</span>
+           <span class="s5">0 </span><span class="s1">-&gt; </span><span class="s0">mostrarMenu </span><span class="s1">= </span><span class="s3">false</span>
+           <span class="s5">1 </span><span class="s1">-&gt; </span><span class="s0">menuCSV</span><span class="s1">()</span>
+           <span class="s5">2 </span><span class="s1">-&gt; </span><span class="s0">menuXML</span><span class="s1">()</span>
+           <span class="s5">3 </span><span class="s1">-&gt; </span><span class="s0">menuJSON</span><span class="s1">()</span>
+           <span class="s3">else </span><span class="s1">-&gt; </span><span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Opción inválida. Intenta con un número del menú.&quot;</span><span class="s1">)</span>
+       <span class="s1">}</span>
+   <span class="s1">}</span>
+<span class="s1">}</span>
+<span class="s2">//MENUS</span>
+<span class="s3">fun </span><span class="s0">menuCSV</span><span class="s1">() {</span>
+    <span class="s3">val </span><span class="s0">entradaCSV </span><span class="s1">= </span><span class="s0">Path</span><span class="s1">.</span><span class="s0">of</span><span class="s1">(</span><span class="s4">&quot;datos&quot;</span><span class="s1">, </span><span class="s4">&quot;habitat.csv&quot;</span><span class="s1">)</span>
+    <span class="s3">var </span><span class="s0">mostrarMenuCSV </span><span class="s1">= </span><span class="s3">true</span>
+    <span class="s3">while </span><span class="s1">(</span><span class="s0">mostrarMenuCSV</span><span class="s1">) {</span>
+        <span class="s0">println</span><span class="s1">(</span>
+            <span class="s4">&quot;--------------------------------------&quot; </span><span class="s1">+</span>
+                    <span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">-------------- CRUD CSV --------------&quot; </span><span class="s1">+</span>
+                    <span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">--------------------------------------&quot; </span><span class="s1">+</span>
+                    <span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">1. Leer datos desde CSV&quot; </span><span class="s1">+</span>
+                    <span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">2. Añadir un registro nuevo al final del fichero&quot; </span><span class="s1">+</span>
+                    <span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">3. Modificar un registro existente (por ID)&quot; </span><span class="s1">+</span>
+                    <span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">4. Eliminar un registro existente (por ID)&quot; </span><span class="s1">+</span>
+                    <span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">0. Volver al menú principal&quot;</span>
+        <span class="s1">)</span>
+
+        <span class="s3">val </span><span class="s0">eleccion: Int </span><span class="s1">= </span><span class="s0">readln</span><span class="s1">().</span><span class="s0">toInt</span><span class="s1">()</span>
+        <span class="s3">when </span><span class="s1">(</span><span class="s0">eleccion</span><span class="s1">) {</span>
+            <span class="s5">0 </span><span class="s1">-&gt; </span><span class="s0">mostrarMenuCSV </span><span class="s1">= </span><span class="s3">false</span>
+            <span class="s5">1 </span><span class="s1">-&gt; </span><span class="s0">println</span><span class="s1">(</span><span class="s0">leerDatosCSV</span><span class="s1">(</span><span class="s0">entradaCSV</span><span class="s1">))</span>
+            <span class="s5">2 </span><span class="s1">-&gt; </span><span class="s0">escribirCSV</span><span class="s1">(</span><span class="s0">entradaCSV</span><span class="s1">)</span>
+            <span class="s5">3 </span><span class="s1">-&gt; </span><span class="s0">modificarCSV</span><span class="s1">(</span><span class="s0">entradaCSV</span><span class="s1">)</span>
+            <span class="s5">4 </span><span class="s1">-&gt; </span><span class="s0">eliminarCSV</span><span class="s1">(</span><span class="s0">entradaCSV</span><span class="s1">)</span>
+            <span class="s3">else </span><span class="s1">-&gt; </span><span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Opción inválida. Intenta con un número del menú.&quot;</span><span class="s1">)</span>
+        <span class="s1">}</span>
+    <span class="s1">}</span>
+<span class="s1">}</span>
+
+<span class="s3">fun </span><span class="s0">menuXML</span><span class="s1">() {</span>
+    <span class="s3">val </span><span class="s0">entradaXML </span><span class="s1">= </span><span class="s0">Path</span><span class="s1">.</span><span class="s0">of</span><span class="s1">(</span><span class="s4">&quot;datos&quot;</span><span class="s1">, </span><span class="s4">&quot;habitat.xml&quot;</span><span class="s1">)</span>
+    <span class="s3">var </span><span class="s0">mostrarMenuXML </span><span class="s1">= </span><span class="s3">true</span>
+    <span class="s3">while </span><span class="s1">(</span><span class="s0">mostrarMenuXML</span><span class="s1">) {</span>
+        <span class="s0">println</span><span class="s1">(</span>
+            <span class="s4">&quot;--------------------------------------&quot; </span><span class="s1">+</span>
+                    <span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">-------------- CRUD XML --------------&quot; </span><span class="s1">+</span>
+                    <span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">--------------------------------------&quot; </span><span class="s1">+</span>
+                    <span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">1. Leer datos desde XML&quot; </span><span class="s1">+</span>
+                    <span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">0. Volver al menú principal&quot;</span>
+        <span class="s1">)</span>
+
+        <span class="s3">val </span><span class="s0">eleccion: Int </span><span class="s1">= </span><span class="s0">readln</span><span class="s1">().</span><span class="s0">toInt</span><span class="s1">()</span>
+        <span class="s3">when </span><span class="s1">(</span><span class="s0">eleccion</span><span class="s1">) {</span>
+            <span class="s5">0 </span><span class="s1">-&gt; </span><span class="s0">mostrarMenuXML </span><span class="s1">= </span><span class="s3">false</span>
+            <span class="s5">1 </span><span class="s1">-&gt; </span><span class="s0">println</span><span class="s1">(</span><span class="s0">leerDatosXML</span><span class="s1">(</span><span class="s0">entradaXML</span><span class="s1">))</span>
+            <span class="s3">else </span><span class="s1">-&gt; </span><span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Opción inválida. Intenta con un número del menú.&quot;</span><span class="s1">)</span>
+        <span class="s1">}</span>
+    <span class="s1">}</span>
+<span class="s1">}</span>
+
+<span class="s3">fun </span><span class="s0">menuJSON</span><span class="s1">() {</span>
+    <span class="s3">val </span><span class="s0">entradaJSON </span><span class="s1">= </span><span class="s0">Path</span><span class="s1">.</span><span class="s0">of</span><span class="s1">(</span><span class="s4">&quot;datos&quot;</span><span class="s1">, </span><span class="s4">&quot;habitat.json&quot;</span><span class="s1">)</span>
+    <span class="s3">var </span><span class="s0">mostrarMenuJSON </span><span class="s1">= </span><span class="s3">true</span>
+    <span class="s3">while </span><span class="s1">(</span><span class="s0">mostrarMenuJSON</span><span class="s1">) {</span>
+        <span class="s0">println</span><span class="s1">(</span>
+            <span class="s4">&quot;--------------------------------------&quot; </span><span class="s1">+</span>
+                    <span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">-------------- CRUD JSON --------------&quot; </span><span class="s1">+</span>
+                    <span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">--------------------------------------&quot; </span><span class="s1">+</span>
+                    <span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">1. Leer datos desde XML&quot; </span><span class="s1">+</span>
+                    <span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">0. Volver al menú principal&quot;</span>
+        <span class="s1">)</span>
+
+        <span class="s3">val </span><span class="s0">eleccion: Int </span><span class="s1">= </span><span class="s0">readln</span><span class="s1">().</span><span class="s0">toInt</span><span class="s1">()</span>
+        <span class="s3">when </span><span class="s1">(</span><span class="s0">eleccion</span><span class="s1">) {</span>
+            <span class="s5">0 </span><span class="s1">-&gt; </span><span class="s0">mostrarMenuJSON </span><span class="s1">= </span><span class="s3">false</span>
+            <span class="s5">1 </span><span class="s1">-&gt; </span><span class="s0">println</span><span class="s1">(</span><span class="s0">leerJSON</span><span class="s1">(</span><span class="s0">entradaJSON</span><span class="s1">))</span>
+            <span class="s3">else </span><span class="s1">-&gt; </span><span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Opción inválida. Intenta con un número del menú.&quot;</span><span class="s1">)</span>
+        <span class="s1">}</span>
+    <span class="s1">}</span>
+<span class="s1">}</span>
+
+<span class="s2">//FUNCIONES CSV</span>
+    <span class="s3">fun </span><span class="s0">importarCSV</span><span class="s1">() {</span>
+        <span class="s3">val </span><span class="s0">entradaCSV </span><span class="s1">= </span><span class="s0">Path</span><span class="s1">.</span><span class="s0">of</span><span class="s1">(</span><span class="s4">&quot;datos&quot;</span><span class="s1">, </span><span class="s4">&quot;habitat.csv&quot;</span><span class="s1">)</span>
+        <span class="s3">val </span><span class="s0">salidaCSV </span><span class="s1">= </span><span class="s0">Path</span><span class="s1">.</span><span class="s0">of</span><span class="s1">(</span><span class="s4">&quot;datos&quot;</span><span class="s1">, </span><span class="s4">&quot;habitat2.csv&quot;</span><span class="s1">)</span>
+
+        <span class="s2">// Leer los datos estructurados del CSV y guardarlos en una lista de objetos Habitat</span>
+        <span class="s3">val </span><span class="s0">datos: List</span><span class="s1">&lt;</span><span class="s0">Habitat</span><span class="s1">&gt; = </span><span class="s0">leerDatosCSV</span><span class="s1">(</span><span class="s0">entradaCSV</span><span class="s1">)</span>
+
+        <span class="s2">// Mostrar por consola la información deserializada</span>
+        <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;--- Información de la lista de Habitats&quot;</span><span class="s1">)</span>
+        <span class="s3">for </span><span class="s1">(</span><span class="s0">dato </span><span class="s3">in </span><span class="s0">datos</span><span class="s1">) {</span>
+            <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;  - ID: </span><span class="s3">${</span><span class="s0">dato</span><span class="s1">.</span><span class="s0">id_habitat</span><span class="s3">}</span><span class="s4">, Nombre común: </span><span class="s3">${</span><span class="s0">dato</span><span class="s1">.</span><span class="s0">nombre</span><span class="s3">}</span><span class="s4">, Clima: </span><span class="s3">${</span><span class="s0">dato</span><span class="s1">.</span><span class="s0">clima</span><span class="s3">}</span><span class="s4">, Altitud: </span><span class="s3">${</span><span class="s0">dato</span><span class="s1">.</span><span class="s0">altitud_media</span><span class="s3">}</span><span class="s4">, Temperatura: </span><span class="s3">${</span><span class="s0">dato</span><span class="s1">.</span><span class="s0">temperatura_media</span><span class="s3">}</span><span class="s4">º&quot;</span><span class="s1">)</span>
+        <span class="s1">}</span>
+
+        <span class="s2">// Guardar una copia procesada en un nuevo fichero CSV</span>
+        <span class="s0">escribirCSV</span><span class="s1">(</span><span class="s0">salidaCSV</span><span class="s1">)</span>
+
+    <span class="s1">}</span>
+
+    <span class="s3">fun </span><span class="s0">leerDatosCSV</span><span class="s1">(</span><span class="s0">ruta: Path</span><span class="s1">)</span><span class="s0">: List</span><span class="s1">&lt;</span><span class="s0">Habitat</span><span class="s1">&gt; {</span>
+        <span class="s3">var </span><span class="s0">habitats: List</span><span class="s1">&lt;</span><span class="s0">Habitat</span><span class="s1">&gt; = </span><span class="s0">emptyList</span><span class="s1">()</span>
+
+        <span class="s3">if </span><span class="s1">(!</span><span class="s0">Files</span><span class="s1">.</span><span class="s0">isReadable</span><span class="s1">(</span><span class="s0">ruta</span><span class="s1">)) {</span>
+            <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Error: No se puede leer el fichero en la ruta: </span><span class="s3">$</span><span class="s0">ruta</span><span class="s4">&quot;</span><span class="s1">)</span>
+        <span class="s1">} </span><span class="s3">else </span><span class="s1">{</span>
+            <span class="s3">val </span><span class="s0">reader </span><span class="s1">= </span><span class="s0">csvReader </span><span class="s1">{</span>
+                <span class="s0">delimiter </span><span class="s1">= </span><span class="s4">';'</span>
+            <span class="s1">}</span>
+
+            <span class="s2">// Leemos todas las filas del CSV (devuelve List&lt;List&lt;String&gt;&gt;)</span>
+            <span class="s3">val </span><span class="s0">filas: List</span><span class="s1">&lt;</span><span class="s0">List</span><span class="s1">&lt;</span><span class="s0">String</span><span class="s1">&gt;&gt; = </span><span class="s0">reader</span><span class="s1">.</span><span class="s0">readAll</span><span class="s1">(</span><span class="s0">ruta</span><span class="s1">.</span><span class="s0">toFile</span><span class="s1">())</span>
+
+            <span class="s2">// Convertimos las filas de texto en objetos Planta válidos</span>
+            <span class="s0">habitats </span><span class="s1">= </span><span class="s0">filas</span><span class="s1">.</span><span class="s0">mapNotNull </span><span class="s1">{ </span><span class="s0">columnas </span><span class="s1">-&gt;</span>
+                <span class="s3">if </span><span class="s1">(</span><span class="s0">columnas</span><span class="s1">.</span><span class="s0">size </span><span class="s1">&gt;= </span><span class="s5">5</span><span class="s1">) {</span>
+                    <span class="s3">try </span><span class="s1">{</span>
+                        <span class="s3">val </span><span class="s0">id_habitat </span><span class="s1">= </span><span class="s0">columnas</span><span class="s1">[</span><span class="s5">0</span><span class="s1">].</span><span class="s0">toInt</span><span class="s1">()</span>
+                        <span class="s3">val </span><span class="s0">nombre </span><span class="s1">= </span><span class="s0">columnas</span><span class="s1">[</span><span class="s5">1</span><span class="s1">]</span>
+                        <span class="s3">val </span><span class="s0">clima </span><span class="s1">= </span><span class="s0">columnas</span><span class="s1">[</span><span class="s5">2</span><span class="s1">]</span>
+                        <span class="s3">val </span><span class="s0">altitud_media </span><span class="s1">= </span><span class="s0">columnas</span><span class="s1">[</span><span class="s5">3</span><span class="s1">].</span><span class="s0">toInt</span><span class="s1">()</span>
+                        <span class="s3">val </span><span class="s0">temperatura_media </span><span class="s1">= </span><span class="s0">columnas</span><span class="s1">[</span><span class="s5">4</span><span class="s1">].</span><span class="s0">toDouble</span><span class="s1">()</span>
+                        <span class="s0">Habitat</span><span class="s1">(</span><span class="s0">id_habitat</span><span class="s1">, </span><span class="s0">nombre</span><span class="s1">, </span><span class="s0">clima</span><span class="s1">, </span><span class="s0">altitud_media</span><span class="s1">, </span><span class="s0">temperatura_media</span><span class="s1">)</span>
+                    <span class="s1">} </span><span class="s0">catch </span><span class="s1">(</span><span class="s0">e: Exception</span><span class="s1">) {</span>
+                        <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Fila inválida ignorada: </span><span class="s3">$</span><span class="s0">columnas </span><span class="s4">-&gt; Error: </span><span class="s3">${</span><span class="s0">e</span><span class="s1">.</span><span class="s0">message</span><span class="s3">}</span><span class="s4">&quot;</span><span class="s1">)</span>
+                        <span class="s3">null</span>
+                    <span class="s1">}</span>
+                <span class="s1">} </span><span class="s3">else </span><span class="s1">{</span>
+                    <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Fila con formato incompleto ignorada: </span><span class="s3">$</span><span class="s0">columnas</span><span class="s4">&quot;</span><span class="s1">)</span>
+                    <span class="s3">null</span>
+                <span class="s1">}</span>
+            <span class="s1">}</span>
+        <span class="s1">}</span>
+        <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;--- Información leída con éxito de: </span><span class="s3">$</span><span class="s0">ruta</span><span class="s4">&quot;</span><span class="s1">)</span>
+        <span class="s3">return </span><span class="s0">habitats</span>
+    <span class="s1">}</span>
+
+    <span class="s3">fun </span><span class="s0">escribirCSV</span><span class="s1">(</span><span class="s0">ruta: Path</span><span class="s1">) {</span>
+
+            <span class="s3">val </span><span class="s0">habitats </span><span class="s1">= </span><span class="s0">leerDatosCSV</span><span class="s1">(</span><span class="s0">ruta</span><span class="s1">).</span><span class="s0">toMutableList</span><span class="s1">()</span>
+            <span class="s3">val </span><span class="s0">fichero: File </span><span class="s1">= </span><span class="s0">ruta</span><span class="s1">.</span><span class="s0">toFile</span><span class="s1">()</span>
+            <span class="s2">//Comparar id existentes para evitar duplicados</span>
+
+            <span class="s3">var  </span><span class="s0">bandera: Boolean </span><span class="s1">= </span><span class="s3">true</span>
+
+            <span class="s3">while </span><span class="s1">(</span><span class="s0">bandera</span><span class="s1">) {</span>
+
+                <span class="s3">try </span><span class="s1">{</span>
+                    <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Asigna un id valido&quot;</span><span class="s1">)</span>
+                        <span class="s3">val </span><span class="s0">id: Int </span><span class="s1">= </span><span class="s0">readln</span><span class="s1">().</span><span class="s0">toInt</span><span class="s1">()</span>
+
+                    <span class="s3">if </span><span class="s1">(</span><span class="s0">habitats</span><span class="s1">.</span><span class="s0">any</span><span class="s1">{</span><span class="s0">it</span><span class="s1">.</span><span class="s0">id_habitat </span><span class="s1">== </span><span class="s0">id</span><span class="s1">}){</span>
+                        <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Error id duplicado&quot;</span><span class="s1">)</span>
+                    <span class="s1">} </span><span class="s3">else </span><span class="s1">{</span>
+                        <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Asigna un nombre valido&quot;</span><span class="s1">)</span>
+                        <span class="s3">val </span><span class="s0">nombre: String </span><span class="s1">= </span><span class="s0">readln</span><span class="s1">()</span>
+
+                        <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Asigna un clima&quot;</span><span class="s1">)</span>
+                        <span class="s3">val </span><span class="s0">clima: String </span><span class="s1">= </span><span class="s0">readln</span><span class="s1">()</span>
+
+                        <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Asigna un altitud&quot;</span><span class="s1">)</span>
+                        <span class="s3">val </span><span class="s0">altitud: Int </span><span class="s1">= </span><span class="s0">readln</span><span class="s1">().</span><span class="s0">toInt</span><span class="s1">()</span>
+
+                        <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Asigna un temperatura&quot;</span><span class="s1">)</span>
+                        <span class="s3">val </span><span class="s0">temperatura: Double </span><span class="s1">= </span><span class="s0">readln</span><span class="s1">().</span><span class="s0">toDouble</span><span class="s1">()</span>
+
+                        <span class="s3">val </span><span class="s0">nuevoHabitat </span><span class="s1">= </span><span class="s0">Habitat</span><span class="s1">(</span><span class="s0">id</span><span class="s1">, </span><span class="s0">nombre</span><span class="s1">, </span><span class="s0">clima</span><span class="s1">, </span><span class="s0">altitud</span><span class="s1">, </span><span class="s0">temperatura</span><span class="s1">)</span>
+                        <span class="s0">habitats</span><span class="s1">.</span><span class="s0">add</span><span class="s1">(</span><span class="s0">nuevoHabitat</span><span class="s1">)</span>
+
+
+                        <span class="s0">csvWriter </span><span class="s1">{</span>
+                            <span class="s0">delimiter </span><span class="s1">= </span><span class="s4">';'</span>
+                        <span class="s1">}.</span><span class="s0">writeAll</span><span class="s1">(</span>
+                            <span class="s0">habitats</span><span class="s1">.</span><span class="s0">map </span><span class="s1">{ </span><span class="s0">habitat </span><span class="s1">-&gt;</span>
+                                <span class="s0">listOf</span><span class="s1">(</span>
+                                    <span class="s0">habitat</span><span class="s1">.</span><span class="s0">id_habitat</span><span class="s1">.</span><span class="s0">toString</span><span class="s1">(),</span>
+                                    <span class="s0">habitat</span><span class="s1">.</span><span class="s0">nombre</span><span class="s1">,</span>
+                                    <span class="s0">habitat</span><span class="s1">.</span><span class="s0">clima</span><span class="s1">,</span>
+                                    <span class="s0">habitat</span><span class="s1">.</span><span class="s0">altitud_media</span><span class="s1">.</span><span class="s0">toString</span><span class="s1">(),</span>
+                                    <span class="s0">habitat</span><span class="s1">.</span><span class="s0">temperatura_media</span><span class="s1">.</span><span class="s0">toString</span><span class="s1">()</span>
+                                <span class="s1">)</span>
+                            <span class="s1">},</span>
+                            <span class="s0">fichero</span>
+                        <span class="s1">)</span>
+                        <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;--- Información guardada con éxito en: </span><span class="s3">$</span><span class="s0">fichero</span><span class="s4">&quot;</span><span class="s1">)</span>
+                        <span class="s0">bandera </span><span class="s1">= </span><span class="s3">false</span>
+                    <span class="s1">}</span>
+                <span class="s1">}</span><span class="s0">catch </span><span class="s1">(</span><span class="s0">e: Exception</span><span class="s1">) {</span>
+                    <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Error al escribir el fichero CSV: </span><span class="s3">${</span><span class="s0">e</span><span class="s1">.</span><span class="s0">message</span><span class="s3">}</span><span class="s4">&quot;</span><span class="s1">)</span>
+
+            <span class="s1">}</span>
+    <span class="s1">}</span>
+        <span class="s1">}</span>
+    <span class="s3">fun </span><span class="s0">modificarCSV</span><span class="s1">(</span><span class="s0">ruta: Path</span><span class="s1">) {</span>
+        <span class="s3">val </span><span class="s0">habitats </span><span class="s1">= </span><span class="s0">leerDatosCSV</span><span class="s1">(</span><span class="s0">ruta</span><span class="s1">).</span><span class="s0">toMutableList</span><span class="s1">()</span>
+
+
+        <span class="s3">if</span><span class="s1">(</span><span class="s0">habitats</span><span class="s1">.</span><span class="s0">isEmpty</span><span class="s1">()) {</span>
+            <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;No hay datos en el fichero para modificar&quot;</span><span class="s1">)</span>
+            <span class="s3">return</span>
+
+        <span class="s1">}</span><span class="s3">else</span><span class="s1">{</span>
+        <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">--- MODIFICAR HABITAT EXISTENTE ---&quot;</span><span class="s1">)</span>
+        <span class="s2">//Pedir id</span>
+        <span class="s3">var </span><span class="s0">habitatSelecionado: Habitat? </span><span class="s1">= </span><span class="s3">null</span>
+        <span class="s3">while </span><span class="s1">(</span><span class="s0">habitatSelecionado </span><span class="s1">== </span><span class="s3">null</span><span class="s1">) {</span>
+            <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Introduce el ID del hábitat a modificar (0 para cancelar):&quot;</span><span class="s1">)</span>
+            <span class="s3">val </span><span class="s0">idAModificar </span><span class="s1">= </span><span class="s0">readln</span><span class="s1">().</span><span class="s0">trim</span><span class="s1">().</span><span class="s0">toIntOrNull</span><span class="s1">()</span>
+
+            <span class="s3">if </span><span class="s1">(</span><span class="s0">idAModificar </span><span class="s1">== </span><span class="s5">0</span><span class="s1">) {</span><span class="s3">return</span>
+            <span class="s1">}</span><span class="s3">else if </span><span class="s1">(</span><span class="s0">idAModificar </span><span class="s1">== </span><span class="s3">null</span><span class="s1">) {</span>
+                <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Error: Debes introducir un número entero válido&quot;</span><span class="s1">)</span>
+            <span class="s1">}</span><span class="s3">else</span><span class="s1">{</span>
+                <span class="s0">habitatSelecionado </span><span class="s1">= </span><span class="s0">habitats</span><span class="s1">.</span><span class="s0">find</span><span class="s1">{</span><span class="s0">it</span><span class="s1">.</span><span class="s0">id_habitat </span><span class="s1">== </span><span class="s0">idAModificar</span><span class="s1">}</span>
+                <span class="s3">if</span><span class="s1">(</span><span class="s0">habitatSelecionado </span><span class="s1">== </span><span class="s3">null</span><span class="s1">){</span>
+                    <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Error: No se encontró el ID&quot;</span><span class="s1">)</span>
+                <span class="s1">}</span>
+            <span class="s1">}</span>
+
+        <span class="s1">}</span>
+            <span class="s2">//Guardamos el id del objeto a modificar</span>
+            <span class="s3">val </span><span class="s0">habitatIndex </span><span class="s1">= </span><span class="s0">habitats</span><span class="s1">.</span><span class="s0">indexOf</span><span class="s1">(</span><span class="s0">habitatSelecionado</span><span class="s1">)</span>
+            <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Modificando el habitat: </span><span class="s3">$</span><span class="s0">habitatSelecionado</span><span class="s3">\n</span><span class="s4">Introduce los nuevos datos:&quot;</span><span class="s1">)</span>
+
+            <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Nuevo nombre: &quot;</span><span class="s1">)</span>
+            <span class="s3">val </span><span class="s0">nuevoNombre </span><span class="s1">= </span><span class="s0">readln</span><span class="s1">().</span><span class="s0">trim</span><span class="s1">()</span>
+
+            <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Nuevo clima: &quot;</span><span class="s1">)</span>
+            <span class="s3">val </span><span class="s0">nuevoClima </span><span class="s1">= </span><span class="s0">readln</span><span class="s1">().</span><span class="s0">trim</span><span class="s1">()</span>
+
+            <span class="s3">var </span><span class="s0">banderaClima: Boolean </span><span class="s1">= </span><span class="s3">true</span>
+            <span class="s3">var </span><span class="s0">nuevaAltitud: Int </span><span class="s1">= </span><span class="s5">0</span>
+            <span class="s3">while </span><span class="s1">(</span><span class="s0">banderaClima</span><span class="s1">) {</span>
+                <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Nueva altitud: &quot;</span><span class="s1">)</span>
+                <span class="s3">val </span><span class="s0">altitudA </span><span class="s1">= </span><span class="s0">readln</span><span class="s1">().</span><span class="s0">trim</span><span class="s1">()</span>
+                <span class="s3">val </span><span class="s0">altitudB </span><span class="s1">= </span><span class="s0">altitudA</span><span class="s1">.</span><span class="s0">toIntOrNull</span><span class="s1">()</span>
+
+                <span class="s3">if </span><span class="s1">(</span><span class="s0">altitudB </span><span class="s1">!= </span><span class="s3">null</span><span class="s1">) {</span>
+                    <span class="s0">nuevaAltitud </span><span class="s1">= </span><span class="s0">altitudB</span>
+                    <span class="s0">banderaClima </span><span class="s1">= </span><span class="s3">false</span>
+                <span class="s1">} </span><span class="s3">else </span><span class="s1">{</span>
+                    <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Error: la altitud tiene que ser un numero entero&quot;</span><span class="s1">)</span>
+                <span class="s1">}</span>
+            <span class="s1">}</span>
+            <span class="s3">var </span><span class="s0">banderaTemperatura: Boolean </span><span class="s1">= </span><span class="s3">true</span>
+            <span class="s3">var </span><span class="s0">nuevaTemperatura: Double </span><span class="s1">= </span><span class="s5">0.0</span>
+            <span class="s3">while </span><span class="s1">(</span><span class="s0">banderaTemperatura</span><span class="s1">) {</span>
+                <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Nuevo temperatura: &quot;</span><span class="s1">)</span>
+                <span class="s3">val </span><span class="s0">temperaturaA </span><span class="s1">= </span><span class="s0">readln</span><span class="s1">().</span><span class="s0">trim</span><span class="s1">()</span>
+                <span class="s3">val </span><span class="s0">temperaturaB </span><span class="s1">= </span><span class="s0">temperaturaA</span><span class="s1">.</span><span class="s0">toDoubleOrNull</span><span class="s1">()</span>
+
+                <span class="s3">if </span><span class="s1">(</span><span class="s0">temperaturaB </span><span class="s1">!= </span><span class="s3">null</span><span class="s1">) {</span>
+                    <span class="s0">nuevaTemperatura </span><span class="s1">= </span><span class="s0">temperaturaB</span>
+                    <span class="s0">banderaTemperatura </span><span class="s1">= </span><span class="s3">false</span>
+                <span class="s1">} </span><span class="s3">else </span><span class="s1">{</span>
+                    <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Error: la temperatura tiene que ser un double&quot;</span><span class="s1">)</span>
+                <span class="s1">}</span>
+            <span class="s1">}</span>
+
+        <span class="s3">val </span><span class="s0">habitatModificado </span><span class="s1">= </span><span class="s0">Habitat</span><span class="s1">(</span>
+            <span class="s0">id_habitat </span><span class="s1">= </span><span class="s0">habitatSelecionado</span><span class="s1">.</span><span class="s0">id_habitat</span><span class="s1">,</span>
+            <span class="s0">nombre </span><span class="s1">= </span><span class="s0">nuevoNombre</span><span class="s1">,</span>
+            <span class="s0">clima </span><span class="s1">= </span><span class="s0">nuevoClima</span><span class="s1">,</span>
+            <span class="s0">altitud_media </span><span class="s1">= </span><span class="s0">nuevaAltitud</span><span class="s1">,</span>
+            <span class="s0">temperatura_media </span><span class="s1">= </span><span class="s0">nuevaTemperatura</span>
+        <span class="s1">)</span>
+            <span class="s0">habitats</span><span class="s1">[</span><span class="s0">habitatIndex</span><span class="s1">] = </span><span class="s0">habitatModificado</span>
+
+            <span class="s2">//Reescribimos el fichero CSV</span>
+            <span class="s3">try</span><span class="s1">{</span>
+                <span class="s3">val </span><span class="s0">fichero: File </span><span class="s1">= </span><span class="s0">ruta</span><span class="s1">.</span><span class="s0">toFile</span><span class="s1">()</span>
+                <span class="s0">csvWriter </span><span class="s1">{</span>
+                    <span class="s0">delimiter </span><span class="s1">= </span><span class="s4">';'</span>
+                <span class="s1">}.</span><span class="s0">writeAll</span><span class="s1">(</span>
+                    <span class="s0">habitats</span><span class="s1">.</span><span class="s0">map </span><span class="s1">{ </span><span class="s0">habitat </span><span class="s1">-&gt;</span>
+                        <span class="s0">listOf</span><span class="s1">(</span>
+                            <span class="s0">habitat</span><span class="s1">.</span><span class="s0">id_habitat</span><span class="s1">.</span><span class="s0">toString</span><span class="s1">(),</span>
+                            <span class="s0">habitat</span><span class="s1">.</span><span class="s0">nombre</span><span class="s1">,</span>
+                            <span class="s0">habitat</span><span class="s1">.</span><span class="s0">clima</span><span class="s1">,</span>
+                            <span class="s0">habitat</span><span class="s1">.</span><span class="s0">altitud_media</span><span class="s1">.</span><span class="s0">toString</span><span class="s1">(),</span>
+                            <span class="s0">habitat</span><span class="s1">.</span><span class="s0">temperatura_media</span><span class="s1">.</span><span class="s0">toString</span><span class="s1">(),</span>
+                        <span class="s1">)</span>
+                    <span class="s1">},</span>
+                    <span class="s0">fichero</span>
+                <span class="s1">)</span>
+                <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Registro con ID </span><span class="s3">${</span><span class="s0">habitatSelecionado</span><span class="s1">.</span><span class="s0">id_habitat</span><span class="s3">} </span><span class="s4">modificado correctamente&quot;</span><span class="s1">)</span>
+            <span class="s1">}</span><span class="s0">catch </span><span class="s1">(</span><span class="s0">e: Exception</span><span class="s1">){</span>
+                <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Error al guardar las modificaciones del habitat con ID </span><span class="s3">${</span><span class="s0">habitatSelecionado</span><span class="s1">.</span><span class="s0">id_habitat</span><span class="s3">}</span><span class="s4">: </span><span class="s3">${</span><span class="s0">e</span><span class="s1">.</span><span class="s0">message</span><span class="s3">}</span><span class="s4">&quot;</span><span class="s1">)</span>
+            <span class="s1">}</span>
+        <span class="s1">}</span>
+
+
+    <span class="s1">}</span>
+
+<span class="s3">fun </span><span class="s0">eliminarCSV</span><span class="s1">(</span><span class="s0">ruta: Path</span><span class="s1">) {</span>
+    <span class="s3">val </span><span class="s0">habitats </span><span class="s1">= </span><span class="s0">leerDatosCSV</span><span class="s1">(</span><span class="s0">ruta</span><span class="s1">).</span><span class="s0">toMutableList</span><span class="s1">()</span>
+
+
+    <span class="s3">if </span><span class="s1">(</span><span class="s0">habitats</span><span class="s1">.</span><span class="s0">isEmpty</span><span class="s1">()) {</span>
+        <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;No hay datos en el fichero a eliminar&quot;</span><span class="s1">)</span>
+        <span class="s3">return</span>
+
+    <span class="s1">} </span><span class="s3">else </span><span class="s1">{</span>
+        <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;</span><span class="s3">\n</span><span class="s4">--- ELIMINAR HABITAT EXISTENTE ---&quot;</span><span class="s1">)</span>
+        <span class="s2">//Pedir id</span>
+        <span class="s3">var </span><span class="s0">habitatSelecionado: Habitat? </span><span class="s1">= </span><span class="s3">null</span>
+        <span class="s3">while </span><span class="s1">(</span><span class="s0">habitatSelecionado </span><span class="s1">== </span><span class="s3">null</span><span class="s1">) {</span>
+            <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Introduce el ID del hábitat a eliminar (0 para cancelar):&quot;</span><span class="s1">)</span>
+            <span class="s3">val </span><span class="s0">idAEliminar </span><span class="s1">= </span><span class="s0">readln</span><span class="s1">().</span><span class="s0">trim</span><span class="s1">().</span><span class="s0">toIntOrNull</span><span class="s1">()</span>
+
+            <span class="s3">if </span><span class="s1">(</span><span class="s0">idAEliminar </span><span class="s1">== </span><span class="s5">0</span><span class="s1">) {</span>
+                <span class="s3">return</span>
+            <span class="s1">} </span><span class="s3">else if </span><span class="s1">(</span><span class="s0">idAEliminar </span><span class="s1">== </span><span class="s3">null</span><span class="s1">) {</span>
+                <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Error: Debes introducir un número entero válido&quot;</span><span class="s1">)</span>
+            <span class="s1">} </span><span class="s3">else </span><span class="s1">{</span>
+                <span class="s0">habitatSelecionado </span><span class="s1">= </span><span class="s0">habitats</span><span class="s1">.</span><span class="s0">find </span><span class="s1">{ </span><span class="s0">it</span><span class="s1">.</span><span class="s0">id_habitat </span><span class="s1">== </span><span class="s0">idAEliminar </span><span class="s1">}</span>
+                <span class="s3">if </span><span class="s1">(</span><span class="s0">habitatSelecionado </span><span class="s1">== </span><span class="s3">null</span><span class="s1">) {</span>
+                    <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Error: No se encontró el ID&quot;</span><span class="s1">)</span>
+                <span class="s1">}</span>
+            <span class="s1">}</span>
+
+        <span class="s1">}</span>
+        <span class="s0">habitats</span><span class="s1">.</span><span class="s0">remove</span><span class="s1">(</span><span class="s0">habitatSelecionado</span><span class="s1">)</span>
+        <span class="s3">try </span><span class="s1">{</span>
+            <span class="s3">val </span><span class="s0">fichero: File </span><span class="s1">= </span><span class="s0">ruta</span><span class="s1">.</span><span class="s0">toFile</span><span class="s1">()</span>
+            <span class="s0">csvWriter </span><span class="s1">{</span>
+                <span class="s0">delimiter </span><span class="s1">= </span><span class="s4">';'</span>
+            <span class="s1">}.</span><span class="s0">writeAll</span><span class="s1">(</span>
+                <span class="s0">habitats</span><span class="s1">.</span><span class="s0">map </span><span class="s1">{ </span><span class="s0">habitat </span><span class="s1">-&gt;</span>
+                    <span class="s0">listOf</span><span class="s1">(</span>
+                        <span class="s0">habitat</span><span class="s1">.</span><span class="s0">id_habitat</span><span class="s1">.</span><span class="s0">toString</span><span class="s1">(),</span>
+                        <span class="s0">habitat</span><span class="s1">.</span><span class="s0">nombre</span><span class="s1">,</span>
+                        <span class="s0">habitat</span><span class="s1">.</span><span class="s0">clima</span><span class="s1">,</span>
+                        <span class="s0">habitat</span><span class="s1">.</span><span class="s0">altitud_media</span><span class="s1">.</span><span class="s0">toString</span><span class="s1">(),</span>
+                        <span class="s0">habitat</span><span class="s1">.</span><span class="s0">temperatura_media</span><span class="s1">.</span><span class="s0">toString</span><span class="s1">()</span>
+                    <span class="s1">)</span>
+                <span class="s1">},</span>
+                <span class="s0">fichero</span>
+            <span class="s1">)</span>
+            <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;--- Registro con ID </span><span class="s3">${</span><span class="s0">habitatSelecionado</span><span class="s1">.</span><span class="s0">id_habitat</span><span class="s3">} </span><span class="s4">eliminado con éxito de: </span><span class="s3">$</span><span class="s0">fichero</span><span class="s4">&quot;</span><span class="s1">)</span>
+        <span class="s1">} </span><span class="s0">catch </span><span class="s1">(</span><span class="s0">e: Exception</span><span class="s1">) {</span>
+            <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Error al guardar los cambios en el fichero CSV: </span><span class="s3">${</span><span class="s0">e</span><span class="s1">.</span><span class="s0">message</span><span class="s3">}</span><span class="s4">&quot;</span><span class="s1">)</span>
+        <span class="s1">}</span>
+    <span class="s1">}</span>
+
+<span class="s1">}</span>
+<span class="s2">//FUNCIONES XML</span>
+<span class="s3">fun </span><span class="s0">leerDatosXML</span><span class="s1">(</span><span class="s0">ruta: Path</span><span class="s1">)</span><span class="s0">: List</span><span class="s1">&lt;</span><span class="s0">habitatXML</span><span class="s1">&gt; {</span>
+
+    <span class="s3">var </span><span class="s0">contenedor </span><span class="s1">= </span><span class="s0">HabitatsWrapper</span><span class="s1">(</span><span class="s0">emptyList</span><span class="s1">())</span>
+
+    <span class="s3">if </span><span class="s1">(!</span><span class="s0">Files</span><span class="s1">.</span><span class="s0">isReadable</span><span class="s1">(</span><span class="s0">ruta</span><span class="s1">)) {</span>
+        <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Error: No se puede leer el fichero en la ruta: </span><span class="s3">$</span><span class="s0">ruta</span><span class="s4">&quot;</span><span class="s1">)</span>
+    <span class="s1">} </span><span class="s3">else </span><span class="s1">{</span>
+        <span class="s3">val </span><span class="s0">fichero </span><span class="s1">= </span><span class="s0">ruta</span><span class="s1">.</span><span class="s0">toFile</span><span class="s1">()</span>
+        <span class="s3">val </span><span class="s0">xmlMapper </span><span class="s1">= </span><span class="s0">XmlMapper</span><span class="s1">().</span><span class="s0">registerKotlinModule</span><span class="s1">()</span>
+
+        <span class="s2">// Leemos el XML directamente sobre la clase contenedora wrapper</span>
+        <span class="s0">contenedor </span><span class="s1">= </span><span class="s0">xmlMapper</span><span class="s1">.</span><span class="s0">readValue</span><span class="s1">(</span><span class="s0">fichero</span><span class="s1">)</span>
+        <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;--- Información leída con éxito de: </span><span class="s3">$</span><span class="s0">ruta</span><span class="s4">&quot;</span><span class="s1">)</span>
+    <span class="s1">}</span>
+    <span class="s3">return </span><span class="s0">contenedor</span><span class="s1">.</span><span class="s0">listaHabitats</span>
+<span class="s1">}</span>
+
+<span class="s2">//FUNCIONES JSON</span>
+
+<span class="s3">fun </span><span class="s0">leerJSON</span><span class="s1">(</span><span class="s0">ruta: Path</span><span class="s1">)</span><span class="s0">: List</span><span class="s1">&lt;</span><span class="s0">HabitatJSON</span><span class="s1">&gt; {</span>
+
+    <span class="s3">var </span><span class="s0">habitat: List</span><span class="s1">&lt;</span><span class="s0">HabitatJSON</span><span class="s1">&gt; = </span><span class="s0">emptyList</span><span class="s1">()</span>
+
+    <span class="s3">if </span><span class="s1">(!</span><span class="s0">Files</span><span class="s1">.</span><span class="s0">isReadable</span><span class="s1">(</span><span class="s0">ruta</span><span class="s1">)) {</span>
+        <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;Error: No se puede leer el fichero en la ruta: </span><span class="s3">$</span><span class="s0">ruta</span><span class="s4">&quot;</span><span class="s1">)</span>
+    <span class="s1">} </span><span class="s3">else </span><span class="s1">{</span>
+
+        <span class="s2">// Leemos el contenido completo del JSON como String</span>
+        <span class="s3">val </span><span class="s0">jsonString </span><span class="s1">= </span><span class="s0">Files</span><span class="s1">.</span><span class="s0">readString</span><span class="s1">(</span><span class="s0">ruta</span><span class="s1">)</span>
+
+        <span class="s2">// Convertimos de texto JSON a una lista de objetos Habitat</span>
+        <span class="s0">habitat </span><span class="s1">= </span><span class="s0">Json</span><span class="s1">.</span><span class="s0">decodeFromString</span><span class="s1">&lt;</span><span class="s0">List</span><span class="s1">&lt;</span><span class="s0">HabitatJSON</span><span class="s1">&gt;&gt;(</span><span class="s0">jsonString</span><span class="s1">)</span>
+        <span class="s0">println</span><span class="s1">(</span><span class="s4">&quot;--- Información leída con éxito de: </span><span class="s3">$</span><span class="s0">ruta</span><span class="s4">&quot;</span><span class="s1">)</span>
+    <span class="s1">}</span>
+    <span class="s3">return </span><span class="s0">habitat</span>
+<span class="s1">}</span>
+
+
+
+</pre>
+</body>
+</html>
