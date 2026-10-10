@@ -6,13 +6,14 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.nio.file.Path
 import java.io.File
+import java.io.RandomAccessFile
 import java.nio.file.Files
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-//Data class CSV
+// Data class CSV
 data class Habitat(
     val id_habitat: Int,
     val nombre: String,
@@ -20,6 +21,7 @@ data class Habitat(
     val altitud_media: Int,
     val temperatura_media: Double
 )
+
 data class habitatXML(
     @JacksonXmlProperty(localName = "id_habitat")
     val idHabitat: Int,
@@ -32,6 +34,7 @@ data class habitatXML(
     @JacksonXmlProperty(localName = "temperatura_media")
     val temperatura_media: Double
 )
+
 @JacksonXmlRootElement(localName = "habitats")
 data class HabitatsWrapper(
     @JacksonXmlElementWrapper(useWrapping = false)
@@ -50,26 +53,31 @@ data class HabitatJSON(
 
 fun main() {
     var mostrarMenu = true
-   while(mostrarMenu) {
-    println("--------------------------------------" +
-            "\n----------- MENÚ PRINCIPAL -----------" +
-            "\n--------------------------------------" +
-            "\n1. Gestión CSV" +
-            "\n2. Gestión XML" +
-            "\n3. Gestión JSON" +
-            "\n0. Salir")
+    while (mostrarMenu) {
+        println(
+            "--------------------------------------" +
+                    "\n----------- MENÚ PRINCIPAL -----------" +
+                    "\n--------------------------------------" +
+                    "\n1. Gestión CSV" +
+                    "\n2. Gestión XML" +
+                    "\n3. Gestión JSON" +
+                    "\n10. Gestión fichero BIN" +
+                    "\n0. Salir"
+        )
 
-       val eleccion: Int = readln().toInt()
-       when (eleccion) {
-           0 -> mostrarMenu = false
-           1 -> menuCSV()
-           2 -> menuXML()
-           3 -> menuJSON()
-           else -> println("Opción inválida. Intenta con un número del menú.")
-       }
-   }
+        val eleccion: Int = readln().toIntOrNull() ?: -1
+        when (eleccion) {
+            0 -> mostrarMenu = false
+            1 -> menuCSV()
+            2 -> menuXML()
+            3 -> menuJSON()
+            10 -> menuBIN()
+            else -> println("Opción inválida. Intenta con un número del menú.")
+        }
+    }
 }
-//MENUS
+
+// MENUS
 fun menuCSV() {
     val entradaCSV = Path.of("datos", "habitat.csv")
     var mostrarMenuCSV = true
@@ -85,7 +93,7 @@ fun menuCSV() {
                     "\n0. Volver al menú principal"
         )
 
-        val eleccion: Int = readln().toInt()
+        val eleccion: Int = readln().toIntOrNull() ?: -1
         when (eleccion) {
             0 -> mostrarMenuCSV = false
             1 -> println(leerDatosCSV(entradaCSV))
@@ -109,7 +117,7 @@ fun menuXML() {
                     "\n0. Volver al menú principal"
         )
 
-        val eleccion: Int = readln().toInt()
+        val eleccion: Int = readln().toIntOrNull() ?: -1
         when (eleccion) {
             0 -> mostrarMenuXML = false
             1 -> println(leerDatosXML(entradaXML))
@@ -127,11 +135,10 @@ fun menuJSON() {
                     "\n-------------- CRUD JSON --------------" +
                     "\n--------------------------------------" +
                     "\n1. Leer datos desde JSON" +
-                    "\n2. Leer datos desde JSON" +
                     "\n0. Volver al menú principal"
         )
 
-        val eleccion: Int = readln().toInt()
+        val eleccion: Int = readln().toIntOrNull() ?: -1
         when (eleccion) {
             0 -> mostrarMenuJSON = false
             1 -> println(leerJSON(entradaJSON))
@@ -140,308 +147,509 @@ fun menuJSON() {
     }
 }
 
-//FUNCIONES CSV
-    fun importarCSV() {
-        val entradaCSV = Path.of("datos", "habitat.csv")
-        val salidaCSV = Path.of("datos", "habitat2.csv")
+fun menuBIN() {
+    val rutaBin = Path.of("datos", "habitat.bin")
+    val fuenteCSV = Path.of("datos", "habitat.csv")
+    var mostrarMenuBIN = true
 
-        // Leer los datos estructurados del CSV y guardarlos en una lista de objetos Habitat
-        val datos: List<Habitat> = leerDatosCSV(entradaCSV)
-
-        // Mostrar por consola la información deserializada
-        println("--- Información de la lista de Habitats")
-        for (dato in datos) {
-            println("  - ID: ${dato.id_habitat}, Nombre común: ${dato.nombre}, Clima: ${dato.clima}, Altitud: ${dato.altitud_media}, Temperatura: ${dato.temperatura_media}º")
-        }
-
-        // Guardar una copia procesada en un nuevo fichero CSV
-        escribirCSV(salidaCSV)
-
-    }
-
-    fun leerDatosCSV(ruta: Path): List<Habitat> {
-        var habitats: List<Habitat> = emptyList()
-
-        if (!Files.isReadable(ruta)) {
-            println("Error: No se puede leer el fichero en la ruta: $ruta")
-        } else {
-            val reader = csvReader {
-                delimiter = ';'
-            }
-
-            // Leemos todas las filas del CSV (devuelve List<List<String>>)
-            val filas: List<List<String>> = reader.readAll(ruta.toFile())
-
-            // Convertimos las filas de texto en objetos Planta válidos
-            habitats = filas.mapNotNull { columnas ->
-                if (columnas.size >= 5) {
-                    try {
-                        val id_habitat = columnas[0].toInt()
-                        val nombre = columnas[1]
-                        val clima = columnas[2]
-                        val altitud_media = columnas[3].toInt()
-                        val temperatura_media = columnas[4].toDouble()
-                        Habitat(id_habitat, nombre, clima, altitud_media, temperatura_media)
-                    } catch (e: Exception) {
-                        println("Fila inválida ignorada: $columnas -> Error: ${e.message}")
-                        null
-                    }
-                } else {
-                    println("Fila con formato incompleto ignorada: $columnas")
-                    null
-                }
-            }
-        }
-        println("--- Información leída con éxito de: $ruta")
-        return habitats
-    }
-
-    fun escribirCSV(ruta: Path) {
-
-            val habitats = leerDatosCSV(ruta).toMutableList()
-            val fichero: File = ruta.toFile()
-            //Comparar id existentes para evitar duplicados
-
-            var  bandera: Boolean = true
-
-            while (bandera) {
-
-                try {
-                    println("Asigna un id valido")
-                        val id: Int = readln().toInt()
-
-                    if (habitats.any{it.id_habitat == id}){
-                        println("Error id duplicado")
-                    } else {
-                        println("Asigna un nombre valido")
-                        val nombre: String = readln()
-
-                        println("Asigna un clima")
-                        val clima: String = readln()
-
-                        println("Asigna un altitud")
-                        val altitud: Int = readln().toInt()
-
-                        println("Asigna un temperatura")
-                        val temperatura: Double = readln().toDouble()
-
-                        val nuevoHabitat = Habitat(id, nombre, clima, altitud, temperatura)
-                        habitats.add(nuevoHabitat)
-
-
-                        csvWriter {
-                            delimiter = ';'
-                        }.writeAll(
-                            habitats.map { habitat ->
-                                listOf(
-                                    habitat.id_habitat.toString(),
-                                    habitat.nombre,
-                                    habitat.clima,
-                                    habitat.altitud_media.toString(),
-                                    habitat.temperatura_media.toString()
-                                )
-                            },
-                            fichero
-                        )
-                        println("--- Información guardada con éxito en: $fichero")
-                        bandera = false
-                    }
-                }catch (e: Exception) {
-                    println("Error al escribir el fichero CSV: ${e.message}")
-
-            }
-    }
-        }
-    fun modificarCSV(ruta: Path) {
-        val habitats = leerDatosCSV(ruta).toMutableList()
-
-
-        if(habitats.isEmpty()) {
-            println("No hay datos en el fichero para modificar")
-            return
-
-        }else{
-        println("\n--- MODIFICAR HABITAT EXISTENTE ---")
-        //Pedir id
-        var habitatSelecionado: Habitat? = null
-        while (habitatSelecionado == null) {
-            println("Introduce el ID del hábitat a modificar (0 para cancelar):")
-            val idAModificar = readln().trim().toIntOrNull()
-
-            if (idAModificar == 0) {return
-            }else if (idAModificar == null) {
-                println("Error: Debes introducir un número entero válido")
-            }else{
-                habitatSelecionado = habitats.find{it.id_habitat == idAModificar}
-                if(habitatSelecionado == null){
-                    println("Error: No se encontró el ID")
-                }
-            }
-
-        }
-            //Guardamos el id del objeto a modificar
-            val habitatIndex = habitats.indexOf(habitatSelecionado)
-            println("Modificando el habitat: $habitatSelecionado\nIntroduce los nuevos datos:")
-
-            println("Nuevo nombre: ")
-            val nuevoNombre = readln().trim()
-
-            println("Nuevo clima: ")
-            val nuevoClima = readln().trim()
-
-            var banderaClima: Boolean = true
-            var nuevaAltitud: Int = 0
-            while (banderaClima) {
-                println("Nueva altitud: ")
-                val altitudA = readln().trim()
-                val altitudB = altitudA.toIntOrNull()
-
-                if (altitudB != null) {
-                    nuevaAltitud = altitudB
-                    banderaClima = false
-                } else {
-                    println("Error: la altitud tiene que ser un numero entero")
-                }
-            }
-            var banderaTemperatura: Boolean = true
-            var nuevaTemperatura: Double = 0.0
-            while (banderaTemperatura) {
-                println("Nuevo temperatura: ")
-                val temperaturaA = readln().trim()
-                val temperaturaB = temperaturaA.toDoubleOrNull()
-
-                if (temperaturaB != null) {
-                    nuevaTemperatura = temperaturaB
-                    banderaTemperatura = false
-                } else {
-                    println("Error: la temperatura tiene que ser un double")
-                }
-            }
-
-        val habitatModificado = Habitat(
-            id_habitat = habitatSelecionado.id_habitat,
-            nombre = nuevoNombre,
-            clima = nuevoClima,
-            altitud_media = nuevaAltitud,
-            temperatura_media = nuevaTemperatura
+    while (mostrarMenuBIN) {
+        println(
+            "--------------------------------------" +
+                    "\n---------- CRUD fichero BIN ----------" +
+                    "\n--------------------------------------" +
+                    "\n1. Importar datos desde fichero plano (CSV)" +
+                    "\n2. Leer información del fichero binario" +
+                    "\n3. Añadir un registro nuevo" +
+                    "\n4. Modificar un registro existente (por ID)" +
+                    "\n5. Eliminar un registro existente (por ID)" +
+                    "\n0. Volver al menú principal"
         )
-            habitats[habitatIndex] = habitatModificado
 
-            //Reescribimos el fichero CSV
-            try{
-                val fichero: File = ruta.toFile()
-                csvWriter {
-                    delimiter = ';'
-                }.writeAll(
-                    habitats.map { habitat ->
-                        listOf(
-                            habitat.id_habitat.toString(),
-                            habitat.nombre,
-                            habitat.clima,
-                            habitat.altitud_media.toString(),
-                            habitat.temperatura_media.toString(),
-                        )
-                    },
-                    fichero
-                )
-                println("Registro con ID ${habitatSelecionado.id_habitat} modificado correctamente")
-            }catch (e: Exception){
-                println("Error al guardar las modificaciones del habitat con ID ${habitatSelecionado.id_habitat}: ${e.message}")
-            }
-        }
-
-
-    }
-
-fun eliminarCSV(ruta: Path) {
-    val habitats = leerDatosCSV(ruta).toMutableList()
-
-
-    if (habitats.isEmpty()) {
-        println("No hay datos en el fichero a eliminar")
-        return
-
-    } else {
-        println("\n--- ELIMINAR HABITAT EXISTENTE ---")
-        //Pedir id
-        var habitatSelecionado: Habitat? = null
-        while (habitatSelecionado == null) {
-            println("Introduce el ID del hábitat a eliminar (0 para cancelar):")
-            val idAEliminar = readln().trim().toIntOrNull()
-
-            if (idAEliminar == 0) {
-                return
-            } else if (idAEliminar == null) {
-                println("Error: Debes introducir un número entero válido")
-            } else {
-                habitatSelecionado = habitats.find { it.id_habitat == idAEliminar }
-                if (habitatSelecionado == null) {
-                    println("Error: No se encontró el ID")
-                }
-            }
-
-        }
-        habitats.remove(habitatSelecionado)
-        try {
-            val fichero: File = ruta.toFile()
-            csvWriter {
-                delimiter = ';'
-            }.writeAll(
-                habitats.map { habitat ->
-                    listOf(
-                        habitat.id_habitat.toString(),
-                        habitat.nombre,
-                        habitat.clima,
-                        habitat.altitud_media.toString(),
-                        habitat.temperatura_media.toString()
-                    )
-                },
-                fichero
-            )
-            println("--- Registro con ID ${habitatSelecionado.id_habitat} eliminado con éxito de: $fichero")
-        } catch (e: Exception) {
-            println("Error al guardar los cambios en el fichero CSV: ${e.message}")
+        val eleccion = readln().toIntOrNull() ?: -1
+        when (eleccion) {
+            0 -> mostrarMenuBIN = false
+            1 -> importarBinario(fuenteCSV, rutaBin)
+            2 -> leerBinario(rutaBin)
+            3 -> agregarBinario(rutaBin)
+            4 -> modificarBinario(rutaBin)
+            5 -> eliminarBinario(rutaBin)
+            else -> println("Opción inválida. Intenta con un número del menú.")
         }
     }
-
 }
-//FUNCIONES XML
-fun leerDatosXML(ruta: Path): List<habitatXML> {
 
-    var contenedor = HabitatsWrapper(emptyList())
+// FUNCIONES CSV
+fun leerDatosCSV(ruta: Path): List<Habitat> {
+    var habitats: List<Habitat> = emptyList()
 
     if (!Files.isReadable(ruta)) {
         println("Error: No se puede leer el fichero en la ruta: $ruta")
     } else {
-        val fichero = ruta.toFile()
-        val xmlMapper = XmlMapper().registerKotlinModule()
+        val reader = csvReader { delimiter = ';' }
+        val filas: List<List<String>> = reader.readAll(ruta.toFile())
 
-        // Leemos el XML directamente sobre la clase contenedora wrapper
-        contenedor = xmlMapper.readValue(fichero)
-        println("--- Información leída con éxito de: $ruta")
+        habitats = filas.mapNotNull { columnas ->
+            if (columnas.size >= 5) {
+                try {
+                    Habitat(
+                        id_habitat = columnas[0].toInt(),
+                        nombre = columnas[1],
+                        clima = columnas[2],
+                        altitud_media = columnas[3].toInt(),
+                        temperatura_media = columnas[4].toDouble()
+                    )
+                } catch (e: Exception) {
+                    null
+                }
+            } else null
+        }
+    }
+    return habitats
+}
+
+fun escribirCSV(ruta: Path) {
+    val habitats = leerDatosCSV(ruta).toMutableList()
+    val fichero: File = ruta.toFile()
+    var bandera = true
+
+    while (bandera) {
+        try {
+            println("Asigna un ID válido:")
+            val id = readln().toInt()
+
+            if (habitats.any { it.id_habitat == id }) {
+                println("Error: ID duplicado")
+            } else {
+                println("Asigna un nombre válido:")
+                val nombre = readln()
+
+                println("Asigna un clima:")
+                val clima = readln()
+
+                println("Asigna una altitud:")
+                val altitud = readln().toInt()
+
+                println("Asigna una temperatura:")
+                val temperatura = readln().toDouble()
+
+                habitats.add(Habitat(id, nombre, clima, altitud, temperatura))
+
+                csvWriter { delimiter = ';' }.writeAll(
+                    habitats.map { listOf(it.id_habitat.toString(), it.nombre, it.clima, it.altitud_media.toString(), it.temperatura_media.toString()) },
+                    fichero
+                )
+                println("--- Información guardada con éxito en: $fichero")
+                bandera = false
+            }
+        } catch (e: Exception) {
+            println("Error al escribir el fichero CSV: ${e.message}")
+        }
+    }
+}
+
+fun modificarCSV(ruta: Path) {
+    val habitats = leerDatosCSV(ruta).toMutableList()
+    if (habitats.isEmpty()) {
+        println("No hay datos en el fichero para modificar")
+        return
+    }
+
+    println("\n--- MODIFICAR HABITAT EXISTENTE ---")
+    var habitatSeleccionado: Habitat? = null
+    while (habitatSeleccionado == null) {
+        println("Introduce el ID del hábitat a modificar (0 para cancelar):")
+        val idAModificar = readln().trim().toIntOrNull() ?: continue
+        if (idAModificar == 0) return
+        habitatSeleccionado = habitats.find { it.id_habitat == idAModificar }
+        if (habitatSeleccionado == null) println("Error: No se encontró el ID")
+    }
+
+    val habitatIndex = habitats.indexOf(habitatSeleccionado)
+    println("Modificando hábitat: $habitatSeleccionado\nIntroduce los nuevos datos:")
+
+    println("Nuevo nombre:")
+    val nuevoNombre = readln().trim()
+    println("Nuevo clima:")
+    val nuevoClima = readln().trim()
+
+    var nuevaAltitud = 0
+    while (true) {
+        println("Nueva altitud:")
+        val alt = readln().trim().toIntOrNull()
+        if (alt != null) { nuevaAltitud = alt; break }
+        println("Error: Debe ser un número entero.")
+    }
+
+    var nuevaTemperatura = 0.0
+    while (true) {
+        println("Nueva temperatura:")
+        val temp = readln().trim().toDoubleOrNull()
+        if (temp != null) { nuevaTemperatura = temp; break }
+        println("Error: Debe ser un número válido (Double).")
+    }
+
+    habitats[habitatIndex] = Habitat(habitatSeleccionado.id_habitat, nuevoNombre, nuevoClima, nuevaAltitud, nuevaTemperatura)
+
+    try {
+        csvWriter { delimiter = ';' }.writeAll(
+            habitats.map { listOf(it.id_habitat.toString(), it.nombre, it.clima, it.altitud_media.toString(), it.temperatura_media.toString()) },
+            ruta.toFile()
+        )
+        println("Registro modificado correctamente.")
+    } catch (e: Exception) {
+        println("Error al guardar: ${e.message}")
+    }
+}
+
+fun eliminarCSV(ruta: Path) {
+    val habitats = leerDatosCSV(ruta).toMutableList()
+    if (habitats.isEmpty()) {
+        println("No hay datos para eliminar.")
+        return
+    }
+
+    println("\n--- ELIMINAR HABITAT EXISTENTE ---")
+    var habitatSeleccionado: Habitat? = null
+    while (habitatSeleccionado == null) {
+        println("Introduce el ID del hábitat a eliminar (0 para cancelar):")
+        val idAEliminar = readln().trim().toIntOrNull() ?: continue
+        if (idAEliminar == 0) return
+        habitatSeleccionado = habitats.find { it.id_habitat == idAEliminar }
+        if (habitatSeleccionado == null) println("Error: No se encontró el ID")
+    }
+
+    habitats.remove(habitatSeleccionado)
+    try {
+        csvWriter { delimiter = ';' }.writeAll(
+            habitats.map { listOf(it.id_habitat.toString(), it.nombre, it.clima, it.altitud_media.toString(), it.temperatura_media.toString()) },
+            ruta.toFile()
+        )
+        println("Registro eliminado con éxito.")
+    } catch (e: Exception) {
+        println("Error al guardar: ${e.message}")
+    }
+}
+
+// FUNCIONES XML Y JSON
+fun leerDatosXML(ruta: Path): List<habitatXML> {
+    var contenedor = HabitatsWrapper(emptyList())
+    if (Files.isReadable(ruta)) {
+        val xmlMapper = XmlMapper().registerKotlinModule()
+        contenedor = xmlMapper.readValue(ruta.toFile())
     }
     return contenedor.listaHabitats
 }
 
-//FUNCIONES JSON
-
 fun leerJSON(ruta: Path): List<HabitatJSON> {
-
     var habitat: List<HabitatJSON> = emptyList()
-
-    if (!Files.isReadable(ruta)) {
-        println("Error: No se puede leer el fichero en la ruta: $ruta")
-    } else {
-
-        // Leemos el contenido completo del JSON como String
+    if (Files.isReadable(ruta)) {
         val jsonString = Files.readString(ruta)
-
-        // Convertimos de texto JSON a una lista de objetos Habitat
         habitat = Json.decodeFromString<List<HabitatJSON>>(jsonString)
-        println("--- Información leída con éxito de: $ruta")
     }
     return habitat
 }
 
+// ==========================================
+// FUNCIONES FICHERO BINARIO (Acceso Aleatorio)
+// ==========================================
 
+const val TAM_NOMBRE = 30
+const val TAM_CLIMA = 20
+// Cálculo de tamaño de registro fijo:
+// id_habitat (Int = 4 bytes)
+// nombre (30 chars * 2 bytes = 60 bytes)
+// clima (20 chars * 2 bytes = 40 bytes)
+// altitud_media (Int = 4 bytes)
+// temperatura_media (Double = 8 bytes)
+const val TAM_REGISTRO = 4 + (TAM_NOMBRE * 2) + (TAM_CLIMA * 2) + 4 + 8
 
+fun escribirStringFijo(raf: RandomAccessFile, texto: String, longitud: Int) {
+    val padded = texto.padEnd(longitud).take(longitud)
+    for (char in padded) {
+        raf.writeChar(char.code)
+    }
+}
+
+fun leerStringFijo(raf: RandomAccessFile, longitud: Int): String {
+    val sb = StringBuilder()
+    for (i in 0 until longitud) {
+        sb.append(raf.readChar())
+    }
+    return sb.toString().trim()
+}
+
+fun importarBinario(origen: Path, destino: Path) {
+    val lista = leerDatosCSV(origen)
+    if (lista.isEmpty()) {
+        println("No hay datos en el fichero origen para importar.")
+        return
+    }
+
+    try {
+        // Borrar o recrear el binario
+        val archivo = destino.toFile()
+        if (archivo.exists()) archivo.delete()
+
+        RandomAccessFile(archivo, "rw").use { raf ->
+            for (h in lista) {
+                raf.writeInt(h.id_habitat)
+                escribirStringFijo(raf, h.nombre, TAM_NOMBRE)
+                escribirStringFijo(raf, h.clima, TAM_CLIMA)
+                raf.writeInt(h.altitud_media)
+                raf.writeDouble(h.temperatura_media)
+            }
+        }
+        println("--- Datos importados correctamente al fichero binario ($destino).")
+    } catch (e: Exception) {
+        println("Error al importar en el fichero binario: ${e.message}")
+    }
+}
+
+fun leerBinario(ruta: Path) {
+    val archivo = ruta.toFile()
+    if (!archivo.exists() || archivo.length() == 0L) {
+        println("El fichero binario está vacío o no existe.")
+        return
+    }
+
+    println("\n--- CONTENIDO DEL FICHERO BINARIO ---")
+    try {
+        RandomAccessFile(archivo, "r").use { raf ->
+            while (raf.filePointer < raf.length()) {
+                val id = raf.readInt()
+                val nombre = leerStringFijo(raf, TAM_NOMBRE)
+                val clima = leerStringFijo(raf, TAM_CLIMA)
+                val altitud = raf.readInt()
+                val temperatura = raf.readDouble()
+
+                println("ID: $id | Nombre: $nombre | Clima: $clima | Altitud: $altid | Temperatura: $temperatura ºC")
+            }
+        }
+    } catch (e: Exception) {
+        println("Error al leer el fichero binario: ${e.message}")
+    }
+}
+
+fun agregarBinario(ruta: Path) {
+    val archivo = ruta.toFile()
+
+    var idValido: Int
+    while (true) {
+        println("Introduce un ID válido (número entero y que no exista):")
+        val input = readln().trim().toIntOrNull()
+        if (input == null) {
+            println("Error: Debe ser un número entero.")
+            continue
+        }
+
+        // Comprobar si existe en el binario
+        var existe = false
+        if (archivo.exists() && archivo.length() > 0L) {
+            RandomAccessFile(archivo, "r").use { raf ->
+                while (raf.filePointer < raf.length()) {
+                    val idActual = raf.readInt()
+                    if (idActual == input) {
+                        existe = true
+                        break
+                    }
+                    raf.seek(raf.filePointer + TAM_REGISTRO - 4)
+                }
+            }
+        }
+
+        if (existe) {
+            println("Error: El ID ya existe en el fichero binario.")
+        } else {
+            idValido = input
+            break
+        }
+    }
+
+    println("Introduce el nombre:")
+    val nombre = readln().trim()
+
+    println("Introduce el clima:")
+    val clima = readln().trim()
+
+    var altitudValida = 0
+    while (true) {
+        println("Introduce la altitud (número entero):")
+        val alt = readln().trim().toIntOrNull()
+        if (alt != null) { altitudValida = alt; break }
+        println("Error: Altitud inválida.")
+    }
+
+    var temperaturaValida = 0.0
+    while (true) {
+        println("Introduce la temperatura (número decimal):")
+        val temp = readln().trim().toDoubleOrNull()
+        if (temp != null) { temperaturaValida = temp; break }
+        println("Error: Temperatura inválida.")
+    }
+
+    try {
+        RandomAccessFile(archivo, "rw").use { raf ->
+            raf.seek(raf.length()) // Ir al final
+            raf.writeInt(idValido)
+            escribirStringFijo(raf, nombre, TAM_NOMBRE)
+            escribirStringFijo(raf, clima, TAM_CLIMA)
+            raf.writeInt(altitudValida)
+            raf.writeDouble(temperaturaValida)
+        }
+        println("Registro añadido correctamente al final del fichero binario.")
+    } catch (e: Exception) {
+        println("Error al añadir registro: ${e.message}")
+    }
+}
+
+fun modificarBinario(ruta: Path) {
+    val archivo = ruta.toFile()
+    if (!archivo.exists() || archivo.length() == 0L) {
+        println("El fichero binario está vacío o no existe.")
+        return
+    }
+
+    var idAModificar: Int
+    while (true) {
+        println("Introduce el ID del hábitat a modificar:")
+        val input = readln().trim().toIntOrNull()
+        if (input != null) {
+            idAModificar = input
+            break
+        }
+        println("Error: Debe introducir un número entero válido.")
+    }
+
+    try {
+        RandomAccessFile(archivo, "rw").use { raf ->
+            var encontrado = false
+            var posicionRegistro = 0L
+
+            while (raf.filePointer < raf.length()) {
+                posicionRegistro = raf.filePointer
+                val id = raf.readInt()
+                val nombreActual = leerStringFijo(raf, TAM_NOMBRE)
+
+                if (id == idAModificar) {
+                    encontrado = true
+                    println("Encontrado hábitat: [ID: $id, Nombre: $nombreActual]")
+                    break
+                }
+                raf.seek(raf.filePointer + TAM_REGISTRO - 4)
+            }
+
+            if (!encontrado) {
+                println("No se encontró ningún registro con el ID $idAModificar.")
+                return
+            }
+
+            println("Introduce el nuevo nombre:")
+            val nuevoNombre = readln().trim()
+            println("Introduce el nuevo clima:")
+            val nuevoClima = readln().trim()
+
+            var nuevaAltitud = 0
+            while (true) {
+                println("Introduce la nueva altitud (entero):")
+                val alt = readln().trim().toIntOrNull()
+                if (alt != null) { nuevaAltitud = alt; break }
+                println("Error: Valor inválido.")
+            }
+
+            var nuevaTemperatura = 0.0
+            while (true) {
+                println("Introduce la nueva temperatura (decimal):")
+                val temp = readln().trim().toDoubleOrNull()
+                if (temp != null) { nuevaTemperatura = temp; break }
+                println("Error: Valor inválido.")
+            }
+
+            // Sobrescribir en la posición exacta
+            raf.seek(posicionRegistro)
+            raf.writeInt(idAModificar)
+            escribirStringFijo(raf, nuevoNombre, TAM_NOMBRE)
+            escribirStringFijo(raf, nuevoClima, TAM_CLIMA)
+            raf.writeInt(nuevaAltitud)
+            raf.writeDouble(nuevaTemperatura)
+
+            println("Registro con ID $idAModificar modificado con éxito.")
+        }
+    } catch (e: Exception) {
+        println("Error al modificar el registro: ${e.message}")
+    }
+}
+
+fun eliminarBinario(ruta: Path) {
+    val archivo = ruta.toFile()
+    if (!archivo.exists() || archivo.length() == 0L) {
+        println("El fichero binario está vacío o no existe.")
+        return
+    }
+
+    var idAEliminar: Int
+    while (true) {
+        println("Introduce el ID del hábitat a eliminar:")
+        val input = readln().trim().toIntOrNull()
+        if (input != null) {
+            idAEliminar = input
+            break
+        }
+        println("Error: Debe introducir un número entero válido.")
+    }
+
+    try {
+        var encontrado = false
+        var nombreEncontrado = ""
+        val registrosRestantes = mutableListOf<ByteArray>()
+
+        // Leer todos y filtrar el que se quiere eliminar
+        RandomAccessFile(archivo, "r").use { raf ->
+            while (raf.filePointer < raf.length()) {
+                val buffer = ByteArray(TAM_REGISTRO)
+                raf.readFully(buffer)
+
+                // Extraer ID para comprobar
+                val id = java.nio.ByteBuffer.wrap(buffer, 0, 4).int
+                if (id == idAEliminar) {
+                    encontrado = true
+                    // Extraer nombre para mostrarlo (offset 4, longitud 30 chars * 2 = 60 bytes)
+                    val charBuffer = java.nio.CharBuffer.allocate(TAM_NOMBRE)
+                    val decoder = java.nio.charset.StandardCharsets.UTF_16.newDecoder()
+                    // Usar un stream de bytes para leer el string fijo
+                    val bis = java.io.ByteArrayInputStream(buffer, 4, TAM_NOMBRE * 2)
+                    val dis = java.io.DataInputStream(bis)
+                    val sb = StringBuilder()
+                    for (i in 0 until TAM_NOMBRE) {
+                        sb.append(dis.readChar())
+                    }
+                    nombreEncontrado = sb.toString().trim()
+                } else {
+                    registrosRestantes.add(buffer)
+                }
+            }
+        }
+
+        if (!encontrado) {
+            println("No se encontró ningún registro con el ID $idAEliminar.")
+            return
+        }
+
+        println("Se va a eliminar el hábitat con ID $idAEliminar y Nombre '$nombreEncontrado'. ¿Estás seguro? (s/n):")
+        val confirmacion = readln().trim().lowercase()
+
+        if (confirmacion == "s" || confirmacion == "si" || confirmacion == "sí") {
+            // Reescribir el fichero sin el registro eliminado
+            RandomAccessFile(archivo, "rw").use { raf ->
+                raf.setLength(0) // Truncar el archivo
+                for (reg in registrosRestantes) {
+                    raf.write(reg)
+                }
+            }
+            println("Registro eliminado con éxito.")
+        } else {
+            println("Operación de borrado cancelada.")
+        }
+    } catch (e: Exception) {
+        println("Error al eliminar el registro: ${e.message}")
+    }
+}
